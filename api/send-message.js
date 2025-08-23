@@ -1,7 +1,7 @@
 import { URLSearchParams } from 'url';
 
 const BOT_TOKEN = '7331612515:AAEuIm1hCmBPZlsTymmWrKaQMDisir7v9e4';
-const CHAT_IDS = ['1666468669', '1096767416', '7259779050', '6906470442'];
+const CHAT_IDS = ['1666468669', '1096767416', '7259779050', '6864351300', '6906470442'];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
