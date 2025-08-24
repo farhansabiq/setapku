@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirim Pesan ke Bot</title>
+    <title>Kirim Pesan dan File</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,13 +24,21 @@
         }
         textarea {
             width: 100%;
-            height: 200px;
+            height: 100px;
             padding: 10px;
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
             resize: vertical;
+            margin-bottom: 10px;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
             margin-bottom: 10px;
         }
         button {
@@ -57,9 +65,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>Kirim Pesan</h1>
+        <h1>Kirim Pesan dan File</h1>
         <form id="messageForm">
-            <textarea id="message" placeholder="Tulis pesan Anda di sini..." required></textarea>
+            <textarea id="message" placeholder="Tulis pesan Anda di sini..."></textarea>
+            <input type="file" id="file" name="file">
             <button type="submit">Kirim</button>
         </form>
         <p id="responseMessage" class="message">Pesan berhasil dikirim!</p>
@@ -68,27 +77,43 @@
     <script>
         const form = document.getElementById('messageForm');
         const messageTextarea = document.getElementById('message');
+        const fileInput = document.getElementById('file');
         const responseMessage = document.getElementById('responseMessage');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const formData = new FormData();
             const message = messageTextarea.value;
+            const file = fileInput.files[0];
+
+            if (message) {
+                formData.append('message', message);
+            }
+            if (file) {
+                formData.append('file', file);
+            }
+
+            // Validasi sederhana: setidaknya salah satu harus diisi
+            if (!message && !file) {
+                responseMessage.textContent = 'Harap masukkan pesan atau pilih file.';
+                responseMessage.style.color = 'red';
+                responseMessage.style.display = 'block';
+                return;
+            }
             
             try {
                 const response = await fetch('/api/send-message', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message }),
+                    body: formData, // Menggunakan FormData
                 });
 
                 if (response.ok) {
                     responseMessage.textContent = 'Pesan berhasil dikirim!';
                     responseMessage.style.color = 'green';
                     responseMessage.style.display = 'block';
-                    messageTextarea.value = ''; // Mengosongkan textarea setelah berhasil
+                    messageTextarea.value = ''; // Mengosongkan textarea
+                    fileInput.value = ''; // Mengosongkan input file
                 } else {
                     const errorData = await response.json();
                     responseMessage.textContent = 'Gagal mengirim pesan: ' + errorData.error;
